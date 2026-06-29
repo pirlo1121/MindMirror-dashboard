@@ -1,23 +1,70 @@
-<section>
-  <h1>Mi perfil</h1>
+<div class="auth-container">
+  <div class="auth-header">
+    <span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary); margin-bottom: 1rem;">
+      account_circle
+    </span>
+    <h1 style="font-family: var(--font-display); font-weight: 700; color: var(--primary);">
+      Mi Perfil
+    </h1>
+    <p style="color: var(--on-surface-variant); font-size: 0.95rem; margin-top: 0.5rem;">
+      Detalles de tu cuenta administrativa.
+    </p>
+  </div>
 
   @if (isLoading()) {
-    <p>Cargando perfil...</p>
+    <div style="text-align: center; padding: 4rem 0;">
+      <p style="font-size: 1.2rem; color: var(--on-surface-variant);">Cargando perfil...</p>
+    </div>
   } @else if (errorMessage()) {
-    <p role="alert">{{ errorMessage() }}</p>
+    <div class="alert alert-error" role="alert">
+      <span class="material-symbols-outlined">error</span>
+      {{ errorMessage() }}
+    </div>
   } @else if (profile(); as userProfile) {
-    <dl>
-      <dt>Nombre</dt>
-      <dd>{{ userProfile.name }}</dd>
+    <div class="form-card" style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div style="border-bottom: 1px solid var(--outline-variant); padding-bottom: 1rem;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--outline); text-transform: uppercase; display: block; margin-bottom: 0.25rem;">
+          Nombre Completo
+        </span>
+        <span style="font-size: 1.2rem; font-weight: 600; color: var(--primary);">
+          {{ userProfile.name }}
+        </span>
+      </div>
 
-      <dt>Email</dt>
-      <dd>{{ userProfile.email }}</dd>
+      <div style="border-bottom: 1px solid var(--outline-variant); padding-bottom: 1rem;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--outline); text-transform: uppercase; display: block; margin-bottom: 0.25rem;">
+          Correo Electrónico
+        </span>
+        <span style="font-size: 1.1rem; color: var(--on-surface);">
+          {{ userProfile.email }}
+        </span>
+      </div>
 
-      <dt>Rol</dt>
-      <dd>{{ userProfile.role }}</dd>
+      <div style="border-bottom: 1px solid var(--outline-variant); padding-bottom: 1rem;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--outline); text-transform: uppercase; display: block; margin-bottom: 0.25rem;">
+          Rol del Usuario
+        </span>
+        @if (userProfile.role === 'admin') {
+          <span class="badge badge-published">Administrador</span>
+        } @else {
+          <span class="badge badge-draft">Usuario Regular</span>
+        }
+      </div>
 
-      <dt>Miembro desde</dt>
-      <dd>{{ userProfile.createdAt | date: 'longDate' }}</dd>
-    </dl>
+      <div>
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--outline); text-transform: uppercase; display: block; margin-bottom: 0.25rem;">
+          Miembro Desde
+        </span>
+        <span style="font-size: 1rem; color: var(--on-surface-variant);">
+          {{ userProfile.createdAt | date: 'longDate' }}
+        </span>
+      </div>
+    </div>
   }
-</section>
+
+  <div class="auth-footer">
+    <a routerLink="/posts" class="btn btn-secondary" style="width: 100%;">
+      Volver al Inicio
+    </a>
+  </div>
+</div>

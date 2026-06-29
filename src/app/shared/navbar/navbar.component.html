@@ -1,42 +1,30 @@
-<nav>
-  <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-    Aware
-  </a>
+<header>
+  <nav class="nav-container">
+    <div style="display: flex; align-items: center; gap: 2rem;">
+      <a routerLink="/" class="brand-logo">MindMirror</a>
+      <div class="nav-links">
+        <a routerLink="/posts" routerLinkActive="active" class="nav-link" [routerLinkActiveOptions]="{ exact: true }">Posts</a>
+        <a routerLink="/subscribe" routerLinkActive="active" class="nav-link">Newsletter</a>
+        @if (authService.isLoggedIn()) {
+          <a routerLink="/drafts" routerLinkActive="active" class="nav-link">Borradores</a>
+          <a routerLink="/profile" routerLinkActive="active" class="nav-link">Mi Perfil</a>
+          @if (authService.isAdmin()) {
+            <a routerLink="/admin/subscribers" routerLinkActive="active" class="nav-link">Suscriptores</a>
+          }
+        }
+      </div>
+    </div>
 
-  <ul>
-    <li>
-      <a routerLink="/posts" routerLinkActive="active">Posts</a>
-    </li>
-    <li>
-      <a routerLink="/subscribe" routerLinkActive="active">Newsletter</a>
-    </li>
-
-    @if (authService.isLoggedIn()) {
-      <li>
-        <a routerLink="/drafts" routerLinkActive="active">Borradores</a>
-      </li>
-      <li>
-        <a routerLink="/profile" routerLinkActive="active">Mi perfil</a>
-      </li>
-
-      @if (authService.isAdmin()) {
-        <li>
-          <a routerLink="/admin/subscribers" routerLinkActive="active">
-            Suscriptores
-          </a>
-        </li>
+    <div class="nav-actions">
+      @if (authService.isLoggedIn()) {
+        <button type="button" class="btn btn-secondary btn-sm" (click)="logout()">
+          <span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+          Cerrar sesión
+        </button>
+      } @else {
+        <a routerLink="/login" class="nav-link" style="margin-right: 0.5rem;">Iniciar sesión</a>
+        <a routerLink="/subscribe" class="btn btn-primary">Suscribirse</a>
       }
-
-      <li>
-        <button type="button" (click)="logout()">Cerrar sesión</button>
-      </li>
-    } @else {
-      <li>
-        <a routerLink="/login" routerLinkActive="active">Iniciar sesión</a>
-      </li>
-      <li>
-        <a routerLink="/register" routerLinkActive="active">Registrarse</a>
-      </li>
-    }
-  </ul>
-</nav>
+    </div>
+  </nav>
+</header>

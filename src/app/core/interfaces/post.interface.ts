@@ -72,7 +72,7 @@ export interface CreatePostPayload {
   title: string;
   excerpt?: string;
   status?: PostStatus;
-  tags?: string;          // Separados por coma
+  tags?: string;          // JSON string del array de tags (se envía como JSON en FormData)
   content?: string;       // JSON string del array de ContentBlock
   coverImage?: File;
 }

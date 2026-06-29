@@ -1,62 +1,101 @@
-<section>
-  <h1>Suscriptores</h1>
+<div class="container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title" style="font-family: var(--font-display); font-weight: 700; color: var(--primary);">
+        Panel de Suscriptores
+      </h1>
+      <p style="font-size: 1rem; color: var(--on-surface-variant); margin-top: 0.25rem;">
+        Administra la lista de lectores que reciben notificaciones por correo.
+      </p>
+    </div>
+    @if (!isLoading() && !errorMessage()) {
+      <div class="btn btn-secondary">
+        Total: {{ subscribers().length }}
+      </div>
+    }
+  </div>
 
   @if (isLoading()) {
-    <p>Cargando suscriptores...</p>
+    <div style="text-align: center; padding: 4rem 0;">
+      <p style="font-size: 1.2rem; color: var(--on-surface-variant);">Cargando suscriptores...</p>
+    </div>
   } @else if (errorMessage()) {
-    <p role="alert">{{ errorMessage() }}</p>
+    <div class="alert alert-error" role="alert">
+      <span class="material-symbols-outlined">error</span>
+      {{ errorMessage() }}
+    </div>
   } @else if (subscribers().length === 0) {
-    <p>No hay suscriptores registrados.</p>
+    <div style="text-align: center; padding: 6rem 0; background-color: var(--surface-container-lowest); border-radius: var(--radius-lg); box-shadow: var(--shadow-low);">
+      <span class="material-symbols-outlined" style="font-size: 48px; color: var(--outline-variant); margin-bottom: 1rem;">
+        group
+      </span>
+      <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No hay suscriptores</h3>
+      <p style="color: var(--on-surface-variant); margin-bottom: 1.5rem;">Nadie se ha suscrito al boletín todavía.</p>
+    </div>
   } @else {
-    <p>Total: {{ subscribers().length }}</p>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Estado</th>
-          <th>Fecha</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (subscriber of subscribers(); track subscriber._id) {
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
           <tr>
-            <td>{{ subscriber.name }}</td>
-            <td>{{ subscriber.email }}</td>
-            <td>{{ subscriber.status === 'active' ? 'Activo' : 'Pausado' }}</td>
-            <td>{{ subscriber.createdAt | date: 'shortDate' }}</td>
-            <td>
-              @if (subscriber.status === 'active') {
-                <button
-                  type="button"
-                  (click)="pauseSubscriber(subscriber._id)"
-                  [disabled]="actionLoadingId() === subscriber._id"
-                >
-                  Pausar
-                </button>
-              } @else {
-                <button
-                  type="button"
-                  (click)="activateSubscriber(subscriber._id)"
-                  [disabled]="actionLoadingId() === subscriber._id"
-                >
-                  Activar
-                </button>
-              }
-
-              <button
-                type="button"
-                (click)="deleteSubscriber(subscriber._id)"
-                [disabled]="actionLoadingId() === subscriber._id"
-              >
-                Eliminar
-              </button>
-            </td>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th>Fecha de Suscripción</th>
+            <th style="text-align: right;">Acciones</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (subscriber of subscribers(); track subscriber._id) {
+            <tr>
+              <td style="font-weight: 600; color: var(--primary);">{{ subscriber.name }}</td>
+              <td>{{ subscriber.email }}</td>
+              <td>
+                @if (subscriber.status === 'active') {
+                  <span class="badge badge-published">Activo</span>
+                } @else {
+                  <span class="badge badge-draft">Pausado</span>
+                }
+              </td>
+              <td>{{ subscriber.createdAt | date: 'mediumDate' }}</td>
+              <td style="text-align: right;">
+                <div style="display: inline-flex; gap: 0.5rem; justify-content: flex-end;">
+                  @if (subscriber.status === 'active') {
+                    <button
+                      type="button"
+                      class="btn btn-secondary btn-sm"
+                      (click)="pauseSubscriber(subscriber._id)"
+                      [disabled]="actionLoadingId() === subscriber._id"
+                    >
+                      <span class="material-symbols-outlined" style="font-size: 16px;">pause</span>
+                      Pausar
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn btn-primary btn-sm"
+                      (click)="activateSubscriber(subscriber._id)"
+                      [disabled]="actionLoadingId() === subscriber._id"
+                    >
+                      <span class="material-symbols-outlined" style="font-size: 16px;">play_arrow</span>
+                      Activar
+                    </button>
+                  }
+
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    (click)="deleteSubscriber(subscriber._id)"
+                    [disabled]="actionLoadingId() === subscriber._id"
+                  >
+                    <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                    Eliminar
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
-</section>
+</div>

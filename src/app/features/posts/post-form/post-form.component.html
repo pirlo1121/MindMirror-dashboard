@@ -1,137 +1,373 @@
-<section>
-  <h1>{{ editingPostId() ? 'Editar post' : 'Nuevo post' }}</h1>
+<div class="article-container" style="padding-top: 2rem;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title" style="font-family: var(--font-display); font-weight: 700; color: var(--primary);">
+        {{ editingPostId() ? 'Editar Artículo' : 'Nuevo Artículo' }}
+      </h1>
+      <p style="font-size: 1rem; color: var(--on-surface-variant); margin-top: 0.25rem;">
+        {{ editingPostId() ? 'Modifica los bloques de contenido o detalles de tu publicación.' : 'Comienza a redactar tu nueva reflexión para los lectores.' }}
+      </p>
+    </div>
+  </div>
 
   @if (errorMessage()) {
-    <div role="alert">{{ errorMessage() }}</div>
+    <div class="alert alert-error" role="alert">
+      <span class="material-symbols-outlined">error</span>
+      {{ errorMessage() }}
+    </div>
   }
 
   <form [formGroup]="postForm" (ngSubmit)="onSubmit()">
 
-    <!-- Título -->
-    <div>
-      <label for="post-title">Título *</label>
+    <!-- ─── Título ─────────────────────────────────────────────────────────── -->
+    <div class="form-card" style="padding: 2.5rem;">
       <input
         id="post-title"
         type="text"
         formControlName="title"
-        placeholder="Título del post"
+        style="
+          width: 100%;
+          border: none;
+          outline: none;
+          font-family: var(--font-display);
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: var(--primary);
+          background: transparent;
+          padding: 0;
+          line-height: 1.2;
+        "
+        placeholder="Título del artículo..."
       />
       @if (titleControl.invalid && titleControl.touched) {
-        <small>El título es requerido (máx. 200 caracteres).</small>
+        <small style="color: var(--error); font-size: 0.8rem; margin-top: 0.5rem; display: block;">
+          El título es requerido (máx. 200 caracteres).
+        </small>
       }
     </div>
 
-    <!-- Extracto -->
-    <div>
-      <label for="post-excerpt">Extracto</label>
-      <textarea
-        id="post-excerpt"
-        formControlName="excerpt"
-        rows="3"
-        placeholder="Resumen breve del post (máx. 500 caracteres)"
-      ></textarea>
-      @if (excerptControl.invalid && excerptControl.touched) {
-        <small>Máximo 500 caracteres.</small>
-      }
-    </div>
+    <!-- ─── Bloques de contenido ───────────────────────────────────────────── -->
+    <div class="form-card" style="padding: 2.5rem; margin-top: 1.5rem;">
 
-    <!-- Estado -->
-    <div>
-      <label for="post-status">Estado</label>
-      <select id="post-status" formControlName="status">
-        <option value="draft">Borrador</option>
-        <option value="published">Publicado</option>
-      </select>
-    </div>
-
-    <!-- Tags -->
-    <div>
-      <label for="post-tags">Tags</label>
-      <input
-        id="post-tags"
-        type="text"
-        formControlName="tags"
-        placeholder="node,express,mongodb (separados por coma)"
-      />
-    </div>
-
-    <!-- Imagen de portada -->
-    <div>
-      <label for="post-cover">Imagen de portada</label>
-      <input
-        id="post-cover"
-        type="file"
-        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml"
-        (change)="onCoverImageSelected($event)"
-      />
-      @if (selectedCoverImage()) {
-        <small>Seleccionada: {{ selectedCoverImage()!.name }}</small>
-      }
-    </div>
-
-    <!-- Bloques de contenido -->
-    <fieldset>
-      <legend>Contenido</legend>
-
-      <div>
-        <button type="button" (click)="addParagraphBlock()">+ Párrafo</button>
-        <button type="button" (click)="addHeadingBlock()">+ Encabezado</button>
-        <button type="button" (click)="addImageBlock()">+ Imagen</button>
-        <button type="button" (click)="addQuoteBlock()">+ Cita</button>
-        <button type="button" (click)="addListBlock()">+ Lista</button>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+        <span style="font-weight: 600; font-size: 0.9rem; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em;">
+          Bloques de contenido
+        </span>
+        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="addParagraphBlock()" title="Agregar párrafo">
+            <span class="material-symbols-outlined" style="font-size: 16px;">notes</span> Párrafo
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="addHeadingBlock()" title="Agregar encabezado">
+            <span class="material-symbols-outlined" style="font-size: 16px;">format_size</span> Encabezado
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="addQuoteBlock()" title="Agregar cita">
+            <span class="material-symbols-outlined" style="font-size: 16px;">format_quote</span> Cita
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="addListBlock()" title="Agregar lista">
+            <span class="material-symbols-outlined" style="font-size: 16px;">format_list_bulleted</span> Lista
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="addImageBlock()" title="Agregar imagen">
+            <span class="material-symbols-outlined" style="font-size: 16px;">image</span> Imagen
+          </button>
+        </div>
       </div>
 
-      <div formArrayName="content">
+      <div formArrayName="content" style="display: flex; flex-direction: column; gap: 1rem;">
         @for (block of contentArray.controls; track $index) {
-          <div [formGroupName]="$index">
-            <span>Bloque {{ $index + 1 }}: {{ block.get('type')?.value }}</span>
-            <button type="button" (click)="removeBlock($index)">✕</button>
+          <div [formGroupName]="$index" class="block-editor-container" style="position: relative; padding: 1.25rem 1.5rem;">
 
-            @if (block.get('type')?.value === 'paragraph' || block.get('type')?.value === 'quote') {
+            <!-- Block header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <span style="font-weight: 600; font-size: 0.75rem; color: var(--outline); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.35rem;">
+                <span class="material-symbols-outlined" style="font-size: 14px;">
+                  @switch (block.get('type')?.value) {
+                    @case ('paragraph') { notes }
+                    @case ('heading') { format_size }
+                    @case ('image') { image }
+                    @case ('quote') { format_quote }
+                    @case ('list') { format_list_bulleted }
+                  }
+                </span>
+                @switch (block.get('type')?.value) {
+                  @case ('paragraph') { Párrafo }
+                  @case ('heading') { Encabezado }
+                  @case ('image') { Imagen }
+                  @case ('quote') { Cita }
+                  @case ('list') { Lista }
+                }
+              </span>
+              <button type="button" class="btn btn-danger btn-sm" (click)="removeBlock($index)" style="padding: 0.15rem 0.5rem; font-size: 0.75rem; line-height: 1;">
+                <span class="material-symbols-outlined" style="font-size: 14px;">delete</span>
+              </button>
+            </div>
+
+            <!-- Paragraph -->
+            @if (block.get('type')?.value === 'paragraph') {
               <textarea
                 formControlName="content"
-                rows="3"
-                placeholder="Texto del bloque"
+                style="
+                  width: 100%;
+                  min-height: 140px;
+                  padding: 0.75rem;
+                  font-family: var(--font-body);
+                  font-size: 1.05rem;
+                  line-height: 1.7;
+                  border: 1px solid var(--outline-variant);
+                  border-radius: var(--radius-md);
+                  background: var(--surface-container-lowest);
+                  color: var(--on-surface);
+                  resize: vertical;
+                  outline: none;
+                  transition: var(--transition-custom);
+                "
+                placeholder="Escribe tu párrafo aquí..."
               ></textarea>
             }
 
+            <!-- Heading -->
             @if (block.get('type')?.value === 'heading') {
-              <select formControlName="level">
-                @for (level of [1, 2, 3, 4, 5, 6]; track level) {
-                  <option [value]="level">H{{ level }}</option>
-                }
-              </select>
-              <input
-                type="text"
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <span style="font-size: 0.8rem; font-weight: 600; color: var(--on-surface-variant);">Nivel:</span>
+                  <select formControlName="level" style="
+                    padding: 0.35rem 0.75rem;
+                    font-family: var(--font-body);
+                    font-size: 0.85rem;
+                    border: 1px solid var(--outline-variant);
+                    border-radius: var(--radius-sm);
+                    background: var(--surface-container-low);
+                    color: var(--on-surface);
+                    outline: none;
+                    cursor: pointer;
+                  ">
+                    @for (level of [1, 2, 3, 4, 5, 6]; track level) {
+                      <option [value]="level">H{{ level }}</option>
+                    }
+                  </select>
+                </div>
+                <input
+                  type="text"
+                  formControlName="content"
+                  [style]="{
+                    'width': '100%',
+                    'border': 'none',
+                    'border-bottom': '2px solid var(--outline-variant)',
+                    'outline': 'none',
+                    'font-family': 'var(--font-display)',
+                    'font-size': block.get('level')?.value === 1 ? '2rem' :
+                                block.get('level')?.value === 2 ? '1.75rem' :
+                                block.get('level')?.value === 3 ? '1.5rem' :
+                                block.get('level')?.value === 4 ? '1.35rem' :
+                                block.get('level')?.value === 5 ? '1.2rem' : '1.1rem',
+                    'font-weight': '700',
+                    'color': 'var(--primary)',
+                    'background': 'transparent',
+                    'padding': '0.5rem 0',
+                    'transition': 'var(--transition-custom)'
+                  }"
+                  placeholder="Texto del encabezado"
+                />
+              </div>
+            }
+
+            <!-- Quote -->
+            @if (block.get('type')?.value === 'quote') {
+              <textarea
                 formControlName="content"
-                placeholder="Texto del encabezado"
-              />
+                style="
+                  width: 100%;
+                  min-height: 120px;
+                  padding: 1rem 1.5rem;
+                  font-family: var(--font-display);
+                  font-size: 1.15rem;
+                  font-style: italic;
+                  line-height: 1.6;
+                  border: none;
+                  border-left: 4px solid var(--secondary);
+                  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+                  background: var(--surface-container-low);
+                  color: var(--primary);
+                  resize: vertical;
+                  outline: none;
+                  transition: var(--transition-custom);
+                "
+                placeholder="Escribe la cita aquí..."
+              ></textarea>
             }
 
-            @if (block.get('type')?.value === 'image') {
-              <input
-                type="url"
-                formControlName="imageUrl"
-                placeholder="URL de la imagen"
-              />
-            }
-
+            <!-- List -->
             @if (block.get('type')?.value === 'list') {
               <textarea
                 formControlName="items"
-                rows="4"
-                placeholder="Un ítem por línea"
+                style="
+                  width: 100%;
+                  min-height: 140px;
+                  padding: 0.75rem 0.75rem 0.75rem 2rem;
+                  font-family: var(--font-body);
+                  font-size: 1.05rem;
+                  line-height: 1.8;
+                  border: 1px solid var(--outline-variant);
+                  border-radius: var(--radius-md);
+                  background: var(--surface-container-lowest);
+                  color: var(--on-surface);
+                  resize: vertical;
+                  outline: none;
+                  transition: var(--transition-custom);
+                "
+                placeholder="Un elemento por línea:&#10;Primer elemento&#10;Segundo elemento&#10;Tercer elemento"
               ></textarea>
             }
+
+            <!-- Image -->
+            @if (block.get('type')?.value === 'image') {
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <input
+                  type="url"
+                  formControlName="imageUrl"
+                  style="
+                    width: 100%;
+                    padding: 0.75rem 1rem;
+                    font-family: var(--font-body);
+                    font-size: 0.95rem;
+                    border: 1px solid var(--outline-variant);
+                    border-radius: var(--radius-md);
+                    background: var(--surface-container-low);
+                    color: var(--on-surface);
+                    outline: none;
+                    transition: var(--transition-custom);
+                  "
+                  placeholder="https://ejemplo.com/imagen.jpg"
+                />
+                <div style="
+                  width: 100%;
+                  min-height: 120px;
+                  border: 2px dashed var(--outline-variant);
+                  border-radius: var(--radius-md);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: var(--outline);
+                  font-size: 0.85rem;
+                  background: var(--surface-container-low);
+                ">
+                  <span style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">image</span>
+                    Vista previa de la imagen
+                  </span>
+                </div>
+              </div>
+            }
+
+          </div>
+        }
+
+        @if (contentArray.controls.length === 0) {
+          <div style="
+            text-align: center;
+            padding: 3rem 2rem;
+            border: 2px dashed var(--outline-variant);
+            border-radius: var(--radius-lg);
+            color: var(--outline);
+          ">
+            <span class="material-symbols-outlined" style="font-size: 2.5rem; margin-bottom: 0.75rem; display: block;">edit_note</span>
+            <p style="font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">Comienza a escribir</p>
+            <p style="font-size: 0.85rem; color: var(--outline);">Usa los botones de arriba para agregar bloques de contenido a tu artículo.</p>
           </div>
         }
       </div>
-    </fieldset>
+    </div>
 
-    <button type="submit" [disabled]="isLoading()">
-      {{ isLoading() ? 'Guardando...' : (editingPostId() ? 'Actualizar' : 'Crear post') }}
-    </button>
+    <!-- ─── Metadatos del artículo ────────────────────────────────────────── -->
+    <div class="form-card" style="padding: 2.5rem; margin-top: 1.5rem;">
+      <h3 style="font-family: var(--font-display); font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--primary);">
+        Detalles del artículo
+      </h3>
 
-    <a [routerLink]="['/posts']">Cancelar</a>
+      <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+
+        <!-- Extracto -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="post-excerpt" class="form-label">Resumen / Extracto</label>
+          <textarea
+            id="post-excerpt"
+            formControlName="excerpt"
+            class="form-control"
+            rows="3"
+            placeholder="Un resumen corto que aparecerá en la página principal (máx. 500 caracteres)"
+          ></textarea>
+          @if (excerptControl.invalid && excerptControl.touched) {
+            <small style="color: var(--error); font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+              Máximo 500 caracteres.
+            </small>
+          }
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <!-- Estado -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="post-status" class="form-label">Estado</label>
+            <select id="post-status" formControlName="status" class="form-control">
+              <option value="draft">Borrador</option>
+              <option value="published">Publicado</option>
+            </select>
+          </div>
+
+          <!-- Tags -->
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="post-tags" class="form-label">Etiquetas / Tags</label>
+            <input
+              id="post-tags"
+              type="text"
+              formControlName="tags"
+              class="form-control"
+              placeholder="psicología, filosofía, mente"
+            />
+            <small style="font-size: 0.75rem; color: var(--outline); margin-top: 0.25rem; display: block;">
+              Separados por coma
+            </small>
+          </div>
+        </div>
+
+        <!-- Imagen de portada -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="post-cover" class="form-label">Imagen de Portada</label>
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <input
+              id="post-cover"
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml"
+              (change)="onCoverImageSelected($event)"
+              style="display: none;"
+              #fileInput
+            />
+            <button type="button" class="btn btn-secondary" (click)="fileInput.click()">
+              <span class="material-symbols-outlined">upload_file</span> Seleccionar Imagen
+            </button>
+            @if (selectedCoverImage()) {
+              <span style="font-size: 0.9rem; color: var(--on-surface-variant); font-weight: 500;">
+                {{ selectedCoverImage()!.name }}
+              </span>
+            } @else {
+              <span style="font-size: 0.9rem; color: var(--outline); font-style: italic;">
+                Ninguna imagen seleccionada
+              </span>
+            }
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── Acciones ──────────────────────────────────────────────────────── -->
+    <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; padding-bottom: 3rem;">
+      <a [routerLink]="['/posts']" class="btn btn-secondary">
+        Cancelar
+      </a>
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading()" style="padding: 0.75rem 2rem;">
+        <span class="material-symbols-outlined">save</span>
+        {{ isLoading() ? 'Guardando...' : (editingPostId() ? 'Actualizar Artículo' : 'Publicar Artículo') }}
+      </button>
+    </div>
+
   </form>
-</section>
+</div>

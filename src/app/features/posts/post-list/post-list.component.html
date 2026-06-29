@@ -1,60 +1,175 @@
-<section>
-  <h1>Posts</h1>
-
-  @if (authService.isLoggedIn()) {
-    <a routerLink="/posts/new">+ Nuevo post</a>
-  }
+<div class="container">
+  <!-- Admin / Header Section -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title" style="font-family: var(--font-display); font-weight: 700; color: var(--primary);">
+        Reflections & Insights
+      </h1>
+      <p style="font-size: 1rem; color: var(--on-surface-variant); margin-top: 0.25rem;">
+        Explorations of the human condition, psychology, and philosophy.
+      </p>
+    </div>
+    @if (authService.isLoggedIn()) {
+      <div style="display: flex; gap: 0.75rem;">
+        <a routerLink="/posts/new" class="btn btn-primary">
+          <span class="material-symbols-outlined">add</span> Nuevo Post
+        </a>
+        <a routerLink="/drafts" class="btn btn-secondary">
+          Ver Borradores
+        </a>
+      </div>
+    }
+  </div>
 
   @if (isLoading()) {
-    <p>Cargando posts...</p>
+    <div style="text-align: center; padding: 4rem 0;">
+      <p style="font-size: 1.2rem; color: var(--on-surface-variant);">Cargando artículos...</p>
+    </div>
   } @else if (errorMessage()) {
-    <p role="alert">{{ errorMessage() }}</p>
+    <div class="alert alert-error" role="alert">
+      <span class="material-symbols-outlined">error</span>
+      {{ errorMessage() }}
+    </div>
   } @else if (posts().length === 0) {
-    <p>No hay posts disponibles.</p>
+    <div style="text-align: center; padding: 6rem 0; background-color: var(--surface-container-lowest); border-radius: var(--radius-lg); box-shadow: var(--shadow-low);">
+      <span class="material-symbols-outlined" style="font-size: 48px; color: var(--outline-variant); margin-bottom: 1rem;">
+        article
+      </span>
+      <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No hay posts publicados</h3>
+      <p style="color: var(--on-surface-variant); margin-bottom: 1.5rem;">Vuelve más tarde para leer nuevos artículos.</p>
+      @if (authService.isLoggedIn()) {
+        <a routerLink="/posts/new" class="btn btn-primary">Crear el primer post</a>
+      }
+    </div>
   } @else {
-    <ul>
-      @for (post of posts(); track post._id) {
-        <li>
-          <article>
-            @if (post.coverImage) {
-              <img [src]="post.coverImage" [alt]="post.title" />
+    <!-- Hero / Featured Post (First post in the list) -->
+    @if (posts()[0]; as featured) {
+      <section class="hero-section">
+        <div class="hero-image-wrapper">
+          <img class="hero-image" 
+               [src]="featured.coverImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuAeUkXI1rKxsOBvUQyc65s9xJfUXU4zJhdn362haQ_3gDbdXcaAO_tZKLwa4VBIccTBdHBNykyPSoinoI9EQ4hB2Z0mI5XKGLq46Faj08voOKj4T4CExdI6WxXvgUYjHsDkjG880eAhXQ984rfUzscFT4QqqLx8PJE228g4zJbhjl9kB3NWBkLOevqoVvVl_PaTKNSgDTDVDrg7Tyf4eIDbaBUvrjkazfxpbYHpSPSlS2TQ3oMUddbWEV84cnlbeiy0Kd1V-7rxnQZD'" 
+               [alt]="featured.title" />
+          <div style="position: absolute; inset: 0; background: linear-gradient(to top, var(--primary) 0%, transparent 100%); opacity: 0.35;"></div>
+        </div>
+        <div class="hero-content">
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+            <span class="badge badge-secondary">Destacado</span>
+            @if (featured.status === 'draft') {
+              <span class="badge badge-draft">Borrador</span>
             }
-
-            <h2>
-              <a [routerLink]="['/posts', post.slug]">{{ post.title }}</a>
-            </h2>
-
-            @if (post.excerpt) {
-              <p>{{ post.excerpt }}</p>
+          </div>
+          <h2 class="hero-title" style="font-family: var(--font-display); font-weight: 700;">
+            <a [routerLink]="['/posts', featured.slug]">{{ featured.title }}</a>
+          </h2>
+          <p class="hero-excerpt" style="font-size: 1.1rem; color: var(--on-surface-variant); margin-bottom: 2rem; line-clamp: 3; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden;">
+            {{ featured.excerpt || 'Descubre esta profunda reflexión del autor sobre la condición humana y la mente.' }}
+          </p>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-top: auto;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 40px; height: 40px; border-radius: var(--radius-full); background-color: var(--primary-fixed); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary);">
+                {{ featured.author.name.charAt(0).toUpperCase() }}
+              </div>
+              <div>
+                <p style="font-weight: 600; font-size: 0.9rem; color: var(--primary);">{{ featured.author.name }}</p>
+                <p style="font-size: 0.75rem; color: var(--on-surface-variant);">
+                  @if (featured.publishedAt) {
+                    {{ featured.publishedAt | date: 'mediumDate' }}
+                  } @else {
+                    {{ featured.createdAt | date: 'mediumDate' }}
+                  }
+                </p>
+              </div>
+            </div>
+            @if (authService.isLoggedIn()) {
+              <a [routerLink]="['/posts', featured._id, 'edit']" class="btn btn-secondary btn-sm">
+                <span class="material-symbols-outlined" style="font-size: 18px;">edit</span> Editar
+              </a>
             }
+          </div>
+        </div>
+      </section>
+    }
 
-            <div>
-              <span>{{ post.author.name }}</span>
-              <span>·</span>
-              <span>{{ post.status }}</span>
+    <!-- Latest Articles Title -->
+    @if (posts().length > 1) {
+      <div style="margin-top: 5rem; margin-bottom: 2rem; border-bottom: 1px solid rgba(197, 198, 206, 0.2); padding-bottom: 1rem;">
+        <h2 style="font-family: var(--font-display); font-size: 2rem; color: var(--primary);">Últimos Artículos</h2>
+      </div>
 
-              @if (post.publishedAt) {
-                <span>· {{ post.publishedAt | date: 'mediumDate' }}</span>
+      <!-- Bento-style Grid -->
+      <div class="grid-bento section-gap">
+        @for (post of posts().slice(1); track post._id) {
+          <article class="card">
+            <div class="card-image-wrapper">
+              <img class="card-image" 
+                   [src]="post.coverImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCzBnZnyuLTnuesRnFeSuWoW3Yj1ePtKKxPJ83BdRQHtKSoLtyC0EwDLiR77UddynsOgaoixKrDgSNrABZsoAQhHcD_dSW7jXghHmybjgyzzHncbuBEwso-PxVXwOX7zEW5nvpGOmWYRKwHm5qTOCK-T7t22CeKxTSoLyW2hrRlOpCJ_okEgU8r23iqlQptEWxHW1CNn1k0uH29aeLJKSQApXJPRYCzuCuKyo_KbWRiHqoM98SeEKrTayfPzLXDpUq7x-6vIhdj14o-'" 
+                   [alt]="post.title" />
+              @if (post.tags && post.tags.length > 0) {
+                <span class="card-badge">{{ post.tags[0] }}</span>
+              } @else {
+                <span class="card-badge">Reflexión</span>
               }
             </div>
-
-            @if (post.tags.length > 0) {
-              <div>
-                @for (tag of post.tags; track tag) {
-                  <span>{{ tag }}</span>
-                }
+            <div class="card-body">
+              <h3 class="card-title">
+                <a [routerLink]="['/posts', post.slug]">{{ post.title }}</a>
+              </h3>
+              <p class="card-excerpt">
+                {{ post.excerpt || 'Una exploración a fondo sobre nuevos conceptos del ser, de la mente y de la psicología moderna.' }}
+              </p>
+              <div class="card-meta">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">person</span>
+                  <span>{{ post.author.name }}</span>
+                </div>
+                <span>
+                  @if (post.publishedAt) {
+                    {{ post.publishedAt | date: 'mediumDate' }}
+                  } @else {
+                    {{ post.createdAt | date: 'mediumDate' }}
+                  }
+                </span>
               </div>
-            }
-
-            <!-- Acciones rápidas (solo visible para el autor o admin) -->
-            @if (authService.isLoggedIn()) {
-              <div>
-                <a [routerLink]="['/posts', post._id, 'edit']">Editar</a>
-              </div>
-            }
+              @if (authService.isLoggedIn()) {
+                <div style="margin-top: 1rem; border-top: 1px solid rgba(197, 198, 206, 0.2); padding-top: 0.75rem; display: flex; justify-content: flex-end;">
+                  <a [routerLink]="['/posts', post._id, 'edit']" class="btn btn-secondary btn-sm">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">edit</span> Editar
+                  </a>
+                </div>
+              }
+            </div>
           </article>
-        </li>
-      }
-    </ul>
+        }
+      </div>
+    }
   }
-</section>
+
+  <!-- Specialized Quote Section -->
+  <section class="quote-section">
+    <span class="material-symbols-outlined" style="font-size: 48px; color: var(--tertiary-fixed); margin-bottom: 1.5rem;">
+      format_quote
+    </span>
+    <blockquote>
+      "La vida no examinada no vale la pena ser vivida. Conócete a ti mismo y descubrirás el universo y a los dioses."
+    </blockquote>
+    <cite>— Sócrates</cite>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="newsletter-card">
+    <div class="newsletter-info">
+      <h2>Profundidad en tu bandeja de entrada.</h2>
+      <p>Únete a nuestra comunidad de lectores y recibe semanalmente nuestras reflexiones sobre psicología y significado. Sin ruido, solo ideas puras.</p>
+    </div>
+    <div class="newsletter-form-wrapper">
+      <div class="newsletter-form">
+        <a routerLink="/subscribe" class="btn btn-dark btn-lg" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <span class="material-symbols-outlined">mail</span> Suscribirse al boletín
+        </a>
+      </div>
+      <p style="font-size: 0.75rem; margin-top: 1rem; opacity: 0.8; text-align: center;">
+        Respetamos tu privacidad. Puedes darte de baja en cualquier momento.
+      </p>
+    </div>
+  </section>
+</div>

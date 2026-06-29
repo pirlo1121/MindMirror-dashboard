@@ -1,38 +1,81 @@
-<section>
-  <h1>Mis borradores</h1>
-  <a routerLink="/posts/new">+ Nuevo post</a>
+<div class="container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title" style="font-family: var(--font-display); font-weight: 700; color: var(--primary);">
+        Mis Borradores
+      </h1>
+      <p style="font-size: 1rem; color: var(--on-surface-variant); margin-top: 0.25rem;">
+        Artículos guardados que aún no se han publicado.
+      </p>
+    </div>
+    <a routerLink="/posts/new" class="btn btn-primary">
+      <span class="material-symbols-outlined">add</span> Nuevo Post
+    </a>
+  </div>
 
   @if (isLoading()) {
-    <p>Cargando borradores...</p>
+    <div style="text-align: center; padding: 4rem 0;">
+      <p style="font-size: 1.2rem; color: var(--on-surface-variant);">Cargando borradores...</p>
+    </div>
   } @else if (errorMessage()) {
-    <p role="alert">{{ errorMessage() }}</p>
+    <div class="alert alert-error" role="alert">
+      <span class="material-symbols-outlined">error</span>
+      {{ errorMessage() }}
+    </div>
   } @else if (drafts().length === 0) {
-    <p>No tienes borradores.</p>
+    <div style="text-align: center; padding: 6rem 0; background-color: var(--surface-container-lowest); border-radius: var(--radius-lg); box-shadow: var(--shadow-low);">
+      <span class="material-symbols-outlined" style="font-size: 48px; color: var(--outline-variant); margin-bottom: 1rem;">
+        drafts
+      </span>
+      <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No tienes borradores</h3>
+      <p style="color: var(--on-surface-variant); margin-bottom: 1.5rem;">Crea un nuevo post y guárdalo como borrador.</p>
+      <a routerLink="/posts/new" class="btn btn-primary">Crear nuevo post</a>
+    </div>
   } @else {
-    <ul>
+    <div class="grid-bento">
       @for (draft of drafts(); track draft._id) {
-        <li>
-          <h2>
-            <a [routerLink]="['/posts', draft.slug]">{{ draft.title }}</a>
-          </h2>
-
-          @if (draft.excerpt) {
-            <p>{{ draft.excerpt }}</p>
-          }
-
-          <div>
-            <a [routerLink]="['/posts', draft._id, 'edit']">Editar</a>
-
-            <button
-              type="button"
-              (click)="publishDraft(draft._id)"
-              [disabled]="publishingId() === draft._id"
-            >
-              {{ publishingId() === draft._id ? 'Publicando...' : 'Publicar' }}
-            </button>
+        <article class="card">
+          <div class="card-image-wrapper" style="height: 180px;">
+            <img class="card-image" 
+                 [src]="draft.coverImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCzBnZnyuLTnuesRnFeSuWoW3Yj1ePtKKxPJ83BdRQHtKSoLtyC0EwDLiR77UddynsOgaoixKrDgSNrABZsoAQhHcD_dSW7jXghHmybjgyzzHncbuBEwso-PxVXwOX7zEW5nvpGOmWYRKwHm5qTOCK-T7t22CeKxTSoLyW2hrRlOpCJ_okEgU8r23iqlQptEWxHW1CNn1k0uH29aeLJKSQApXJPRYCzuCuKyo_KbWRiHqoM98SeEKrTayfPzLXDpUq7x-6vIhdj14o-'" 
+                 [alt]="draft.title" />
+            <span class="card-badge badge-draft">Borrador</span>
           </div>
-        </li>
+          <div class="card-body">
+            <h3 class="card-title" style="font-size: 1.25rem;">
+              <a [routerLink]="['/posts', draft.slug]">{{ draft.title }}</a>
+            </h3>
+            @if (draft.excerpt) {
+              <p class="card-excerpt" style="font-size: 0.875rem; -webkit-line-clamp: 2;">
+                {{ draft.excerpt }}
+              </p>
+            } @else {
+              <p class="card-excerpt" style="font-size: 0.875rem; -webkit-line-clamp: 2; font-style: italic;">
+                Sin descripción...
+              </p>
+            }
+            <div class="card-meta" style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(197, 198, 206, 0.2); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.8rem;">
+                Creado: {{ draft.createdAt | date: 'shortDate' }}
+              </span>
+              <div style="display: flex; gap: 0.5rem;">
+                <a [routerLink]="['/posts', draft._id, 'edit']" class="btn btn-secondary btn-sm">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">edit</span> Editar
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  (click)="publishDraft(draft._id)"
+                  [disabled]="publishingId() === draft._id"
+                >
+                  <span class="material-symbols-outlined" style="font-size: 16px;">publish</span>
+                  {{ publishingId() === draft._id ? 'Publicando...' : 'Publicar' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
       }
-    </ul>
+    </div>
   }
-</section>
+</div>

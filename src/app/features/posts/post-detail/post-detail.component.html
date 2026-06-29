@@ -1,100 +1,135 @@
-<article>
+<div class="article-container" style="padding-top: 2rem;">
+  <!-- Back navigation link -->
+  <a routerLink="/posts" class="btn btn-secondary" style="margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+    <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> Volver a los artículos
+  </a>
+
   @if (isLoading()) {
-    <p>Cargando post...</p>
+    <div style="text-align: center; padding: 4rem 0;">
+      <p style="font-size: 1.2rem; color: var(--on-surface-variant);">Cargando artículo...</p>
+    </div>
   } @else if (errorMessage()) {
-    <p role="alert">{{ errorMessage() }}</p>
+    <div class="alert alert-error" role="alert">
+      <span class="material-symbols-outlined">error</span>
+      {{ errorMessage() }}
+    </div>
   } @else if (post(); as currentPost) {
-
-    <!-- Cabecera -->
-    <header>
-      <h1>{{ currentPost.title }}</h1>
-
-      @if (currentPost.excerpt) {
-        <p>{{ currentPost.excerpt }}</p>
-      }
-
-      <div>
-        <span>{{ currentPost.author.name }}</span>
-        <span>·</span>
-        <span>{{ currentPost.status === 'published' ? 'Publicado' : 'Borrador' }}</span>
-
-        @if (currentPost.publishedAt) {
-          <span>· {{ currentPost.publishedAt | date: 'longDate' }}</span>
-        }
-      </div>
-
-      @if (currentPost.tags.length > 0) {
-        <div>
+    <article>
+      <!-- Cabecera -->
+      <header class="article-header">
+        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+          @if (currentPost.status === 'draft') {
+            <span class="badge badge-draft">Borrador</span>
+          } @else {
+            <span class="badge badge-published">Publicado</span>
+          }
           @for (tag of currentPost.tags; track tag) {
-            <span>{{ tag }}</span>
+            <span class="badge badge-secondary">{{ tag }}</span>
           }
         </div>
-      }
-    </header>
 
-    <!-- Imagen de portada -->
-    @if (currentPost.coverImage) {
-      <img [src]="currentPost.coverImage" [alt]="currentPost.title" />
-    }
+        <h1 class="article-title" style="font-family: var(--font-display); font-weight: 700; color: var(--primary);">
+          {{ currentPost.title }}
+        </h1>
 
-    <!-- Bloques de contenido -->
-    <div>
-      @for (block of currentPost.content; track $index) {
-
-        @if (block.type === 'paragraph') {
-          <p>{{ block.content }}</p>
+        @if (currentPost.excerpt) {
+          <p style="font-family: var(--font-body); font-size: 1.2rem; line-height: 1.6; color: var(--on-surface-variant); max-width: 650px; margin: 1.5rem auto 2rem;">
+            {{ currentPost.excerpt }}
+          </p>
         }
 
-        @if (block.type === 'heading') {
-          @switch (block.level) {
-            @case (1) { <h1>{{ block.content }}</h1> }
-            @case (2) { <h2>{{ block.content }}</h2> }
-            @case (3) { <h3>{{ block.content }}</h3> }
-            @case (4) { <h4>{{ block.content }}</h4> }
-            @case (5) { <h5>{{ block.content }}</h5> }
-            @case (6) { <h6>{{ block.content }}</h6> }
-          }
-        }
-
-        @if (block.type === 'image') {
-          <figure>
-            <img [src]="block.imageUrl" alt="Imagen del post" />
-          </figure>
-        }
-
-        @if (block.type === 'quote') {
-          <blockquote>{{ block.content }}</blockquote>
-        }
-
-        @if (block.type === 'list') {
-          <ul>
-            @for (item of block.items; track $index) {
-              <li>{{ item }}</li>
+        <div class="article-meta">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 32px; height: 32px; border-radius: var(--radius-full); background-color: var(--primary-fixed); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary); font-size: 0.8rem;">
+              {{ currentPost.author.name.charAt(0).toUpperCase() }}
+            </div>
+            <span style="font-weight: 600;">{{ currentPost.author.name }}</span>
+          </div>
+          <span>·</span>
+          <span>
+            @if (currentPost.publishedAt) {
+              {{ currentPost.publishedAt | date: 'longDate' }}
+            } @else {
+              Creado el {{ currentPost.createdAt | date: 'longDate' }}
             }
-          </ul>
-        }
+          </span>
+        </div>
+      </header>
 
+      <!-- Imagen de portada -->
+      @if (currentPost.coverImage) {
+        <img class="article-cover-img" [src]="currentPost.coverImage" [alt]="currentPost.title" />
+      } @else {
+        <!-- Ethereal default cover matching brand -->
+        <div style="width: 100%; height: 350px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--primary-container), var(--surface-tint)); margin-bottom: 3rem; display: flex; align-items: center; justify-content: center; color: white;">
+          <span class="material-symbols-outlined" style="font-size: 64px; opacity: 0.3;">auto_stories</span>
+        </div>
       }
-    </div>
 
-    <!-- Acciones (autor o admin) -->
-    @if (authService.isLoggedIn()) {
-      <div>
-        <a [routerLink]="['/posts', currentPost._id, 'edit']">Editar</a>
+      <!-- Bloques de contenido -->
+      <div class="article-content">
+        @for (block of currentPost.content; track $index) {
 
-        @if (currentPost.status === 'draft') {
-          <button type="button" (click)="publishPost()">Publicar</button>
+          @if (block.type === 'paragraph') {
+            <p>{{ block.content }}</p>
+          }
+
+          @if (block.type === 'heading') {
+            @switch (block.level) {
+              @case (1) { <h1 style="margin-top: 2rem; margin-bottom: 1rem;">{{ block.content }}</h1> }
+              @case (2) { <h2 style="margin-top: 2rem; margin-bottom: 1rem;">{{ block.content }}</h2> }
+              @case (3) { <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">{{ block.content }}</h3> }
+              @case (4) { <h4 style="margin-top: 1.5rem; margin-bottom: 1rem;">{{ block.content }}</h4> }
+              @case (5) { <h5 style="margin-top: 1rem; margin-bottom: 0.5rem;">{{ block.content }}</h5> }
+              @case (6) { <h6 style="margin-top: 1rem; margin-bottom: 0.5rem;">{{ block.content }}</h6> }
+            }
+          }
+
+          @if (block.type === 'image') {
+            <figure style="margin: 2.5rem 0; text-align: center;">
+              <img [src]="block.imageUrl" alt="Imagen del post" style="max-width: 100%; border-radius: var(--radius-md); box-shadow: var(--shadow-low);" />
+            </figure>
+          }
+
+          @if (block.type === 'quote') {
+            <blockquote>
+              "{{ block.content }}"
+            </blockquote>
+          }
+
+          @if (block.type === 'list') {
+            <ul style="margin: 1.5rem 0; padding-left: 2rem;">
+              @for (item of block.items; track $index) {
+                <li style="margin-bottom: 0.5rem; color: var(--on-surface);">{{ item }}</li>
+              }
+            </ul>
+          }
+
         }
-
-        <button
-          type="button"
-          (click)="deletePost()"
-          [disabled]="isDeleting()"
-        >
-          {{ isDeleting() ? 'Eliminando...' : 'Eliminar' }}
-        </button>
       </div>
-    }
 
+      <!-- Acciones de edición/publicación/eliminación (solo admins logueados) -->
+      @if (authService.isLoggedIn()) {
+        <div class="article-actions">
+          @if (currentPost.status === 'draft') {
+            <button type="button" class="btn btn-primary" (click)="publishPost()">
+              <span class="material-symbols-outlined">publish</span> Publicar ahora
+            </button>
+          }
+          <a [routerLink]="['/posts', currentPost._id, 'edit']" class="btn btn-secondary">
+            <span class="material-symbols-outlined">edit</span> Editar contenido
+          </a>
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="deletePost()"
+            [disabled]="isDeleting()"
+          >
+            <span class="material-symbols-outlined">delete</span>
+            {{ isDeleting() ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+        </div>
+      }
+    </article>
   }
-</article>
+</div>

@@ -2,13 +2,15 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 
+import { DatePipe } from '@angular/common';
+
 import { PostService } from '../../../core/services/post.service';
 import { PostSummary } from '../../../core/interfaces';
 
 @Component({
   selector: 'app-post-drafts',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, DatePipe],
   templateUrl: './post-drafts.component.html',
 })
 export class PostDraftsComponent implements OnInit {

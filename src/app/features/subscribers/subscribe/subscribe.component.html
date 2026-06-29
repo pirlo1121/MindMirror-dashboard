@@ -1,45 +1,73 @@
-<section>
-  <h1>Suscríbete al newsletter</h1>
-  <p>Recibe notificaciones cuando se publique un nuevo artículo.</p>
+<div class="auth-container">
+  <div class="auth-header">
+    <span class="material-symbols-outlined" style="font-size: 48px; color: var(--secondary); margin-bottom: 1rem;">
+      mark_email_unread
+    </span>
+    <h1 style="font-family: var(--font-display); font-weight: 700; color: var(--primary);">
+      MindMirror Boletín
+    </h1>
+    <p style="color: var(--on-surface-variant); font-size: 1rem; margin-top: 0.5rem;">
+      Únete a más de 25,000 lectores dedicados al desarrollo intelectual y personal.
+    </p>
+  </div>
 
   @if (successMessage()) {
-    <div role="status">{{ successMessage() }}</div>
+    <div class="alert alert-success" role="status" style="text-align: center; justify-content: center; flex-direction: column; padding: 2rem;">
+      <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 0.5rem;">check_circle</span>
+      <h3 style="margin-bottom: 0.5rem; color: #0f5132;">¡Suscripción Completada!</h3>
+      <p style="color: #0f5132;">{{ successMessage() }}</p>
+      <a routerLink="/posts" class="btn btn-primary" style="margin-top: 1.5rem;">Volver al Inicio</a>
+    </div>
   } @else {
 
     @if (errorMessage()) {
-      <div role="alert">{{ errorMessage() }}</div>
+      <div class="alert alert-error" role="alert">
+        <span class="material-symbols-outlined">error</span>
+        {{ errorMessage() }}
+      </div>
     }
 
-    <form [formGroup]="subscribeForm" (ngSubmit)="onSubmit()">
-      <div>
-        <label for="subscribe-name">Nombre</label>
+    <form [formGroup]="subscribeForm" (ngSubmit)="onSubmit()" class="form-card">
+      <div class="form-group">
+        <label for="subscribe-name" class="form-label">Nombre Completo</label>
         <input
           id="subscribe-name"
           type="text"
           formControlName="name"
-          placeholder="Tu nombre"
+          class="form-control"
+          placeholder="Escribe tu nombre"
         />
         @if (nameControl.invalid && nameControl.touched) {
-          <small>El nombre es requerido.</small>
+          <small style="color: var(--error); font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+            El nombre es requerido.
+          </small>
         }
       </div>
 
-      <div>
-        <label for="subscribe-email">Correo electrónico</label>
+      <div class="form-group">
+        <label for="subscribe-email" class="form-label">Correo Electrónico</label>
         <input
           id="subscribe-email"
           type="email"
           formControlName="email"
-          placeholder="tu@email.com"
+          class="form-control"
+          placeholder="ejemplo@correo.com"
         />
         @if (emailControl.invalid && emailControl.touched) {
-          <small>Ingresa un correo válido.</small>
+          <small style="color: var(--error); font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+            Ingresa un correo electrónico válido.
+          </small>
         }
       </div>
 
-      <button type="submit" [disabled]="isLoading()">
-        {{ isLoading() ? 'Suscribiendo...' : 'Suscribirme' }}
+      <button type="submit" class="btn btn-primary btn-lg" [disabled]="isLoading()" style="width: 100%; margin-top: 1rem;">
+        <span class="material-symbols-outlined" style="font-size: 20px;">mail</span>
+        {{ isLoading() ? 'Suscribiendo...' : 'Suscribirse al boletín' }}
       </button>
+
+      <p style="font-size: 0.75rem; text-align: center; color: var(--on-surface-variant); margin-top: 1.5rem; line-height: 1.4;">
+        Enviamos un correo por semana. No compartimos tus datos con terceros. Puedes darte de baja cuando quieras.
+      </p>
     </form>
   }
-</section>
+</div>

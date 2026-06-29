@@ -135,23 +135,27 @@ export class PostFormComponent implements OnInit {
     const formValue = this.postForm.value;
     const contentBlocks = this.buildContentBlocks(formValue.content);
 
+    const tagsArray = formValue.tags
+      ? (formValue.tags as string).split(',').map((t: string) => t.trim()).filter(Boolean)
+      : [];
+
     const payload: CreatePostPayload = {
       title: formValue.title,
       excerpt: formValue.excerpt || undefined,
       status: formValue.status,
-      tags: formValue.tags || undefined,
+      tags: tagsArray.length > 0 ? JSON.stringify(tagsArray) : undefined,
       content: JSON.stringify(contentBlocks),
       coverImage: this.selectedCoverImage() ?? undefined,
     };
 
     const request$ = this.editingPostId()
       ? this.postService.updatePost(this.editingPostId()!, {
-          title: payload.title,
-          excerpt: payload.excerpt,
-          status: payload.status,
-          tags: payload.tags?.split(',').map((t) => t.trim()),
-          content: contentBlocks,
-        })
+        title: payload.title,
+        excerpt: payload.excerpt,
+        status: payload.status,
+        tags: payload.tags ? (JSON.parse(payload.tags) as string[]) : undefined,
+        content: contentBlocks,
+      })
       : this.postService.createPost(payload);
 
     request$.subscribe({
