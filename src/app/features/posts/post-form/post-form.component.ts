@@ -35,6 +35,9 @@ export class PostFormComponent implements OnInit {
   /** En modo edición se almacena el ID del post */
   readonly editingPostId = signal<string | null>(null);
 
+  /** Archivos seleccionados para bloques de imagen, key = índice del bloque */
+  contentImageFiles: Record<number, File> = {};
+
   readonly postForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(200)]],
     excerpt: ['', [Validators.maxLength(500)]],
@@ -117,8 +120,28 @@ export class PostFormComponent implements OnInit {
     this.contentArray.push(block);
   }
 
+  onContentImageSelected(index: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    if (file) {
+      this.contentImageFiles[index] = file;
+    } else {
+      delete this.contentImageFiles[index];
+    }
+  }
+
   removeBlock(index: number): void {
     this.contentArray.removeAt(index);
+    const newFiles: Record<number, File> = {};
+    for (const key of Object.keys(this.contentImageFiles)) {
+      const numKey = Number(key);
+      if (numKey < index) {
+        newFiles[numKey] = this.contentImageFiles[numKey];
+      } else if (numKey > index) {
+        newFiles[numKey - 1] = this.contentImageFiles[numKey];
+      }
+    }
+    this.contentImageFiles = newFiles;
   }
 
   // ─── Envío del formulario ─────────────────────────────────────────────────
@@ -133,7 +156,8 @@ export class PostFormComponent implements OnInit {
     this.errorMessage.set(null);
 
     const formValue = this.postForm.value;
-    const contentBlocks = this.buildContentBlocks(formValue.content);
+    const contentImages: File[] = [];
+    const contentBlocks = this.buildContentBlocks(formValue.content, contentImages);
 
     const tagsArray = formValue.tags
       ? (formValue.tags as string).split(',').map((t: string) => t.trim()).filter(Boolean)
@@ -146,16 +170,11 @@ export class PostFormComponent implements OnInit {
       tags: tagsArray.length > 0 ? JSON.stringify(tagsArray) : undefined,
       content: JSON.stringify(contentBlocks),
       coverImage: this.selectedCoverImage() ?? undefined,
+      contentImages: contentImages.length > 0 ? contentImages : undefined,
     };
 
     const request$ = this.editingPostId()
-      ? this.postService.updatePost(this.editingPostId()!, {
-        title: payload.title,
-        excerpt: payload.excerpt,
-        status: payload.status,
-        tags: payload.tags ? (JSON.parse(payload.tags) as string[]) : undefined,
-        content: contentBlocks,
-      })
+      ? this.postService.updatePost(this.editingPostId()!, this.postService.buildPostFormData(payload))
       : this.postService.createPost(payload);
 
     request$.subscribe({
@@ -181,9 +200,10 @@ export class PostFormComponent implements OnInit {
   /**
    * Convierte los valores del FormArray en ContentBlock tipados.
    * Los bloques "list" tienen sus items en formato CSV.
+   * Los bloques "image" con archivo asignan imageUrl = '__UPLOAD__'.
    */
-  private buildContentBlocks(rawBlocks: any[]): ContentBlock[] {
-    return rawBlocks.map((raw) => {
+  private buildContentBlocks(rawBlocks: any[], contentImages: File[]): ContentBlock[] {
+    return rawBlocks.map((raw, index) => {
       if (raw.type === 'list') {
         return {
           type: 'list',
@@ -192,6 +212,13 @@ export class PostFormComponent implements OnInit {
             .map((i: string) => i.trim())
             .filter(Boolean),
         } as ContentBlock;
+      }
+      if (raw.type === 'image') {
+        const file = this.contentImageFiles[index];
+        if (file) {
+          contentImages.push(file);
+          return { type: 'image', imageUrl: '__UPLOAD__' } as ContentBlock;
+        }
       }
       return raw as ContentBlock;
     });

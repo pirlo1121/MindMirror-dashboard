@@ -57,6 +57,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'all',
+        loadComponent: () =>
+          import('./features/posts/post-all/post-all.component').then(
+            (m) => m.PostAllComponent
+          ),
+      },
+      {
         path: ':slug',
         loadComponent: () =>
           import('./features/posts/post-detail/post-detail.component').then(

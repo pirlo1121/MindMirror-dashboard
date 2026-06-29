@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -20,6 +20,8 @@ export class PostListComponent implements OnInit {
   readonly posts = signal<PostSummary[]>([]);
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
+
+  readonly showAllLink = computed(() => this.posts().length > 4);
 
   ngOnInit(): void {
     this.loadPosts();

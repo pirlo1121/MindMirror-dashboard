@@ -7,21 +7,40 @@ export class ThemeService {
   readonly isDarkMode = signal(false);
 
   constructor() {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark') {
-      this.setDarkMode(true);
-    } else if (saved === 'light') {
-      this.setDarkMode(false);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.setDarkMode(prefersDark);
+    this.initTheme();
+  }
+
+  private initTheme(): void {
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'dark') {
+        this.setDarkMode(true);
+        return;
+      }
+      if (saved === 'light') {
+        this.setDarkMode(false);
+        return;
+      }
+    } catch {
+      // localStorage no disponible
     }
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem('theme')) {
-        this.setDarkMode(e.matches);
-      }
-    });
+    try {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      this.setDarkMode(prefersDark);
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        try {
+          if (!localStorage.getItem('theme')) {
+            this.setDarkMode(e.matches);
+          }
+        } catch {
+          this.setDarkMode(e.matches);
+        }
+      });
+    } catch {
+      // matchMedia no disponible
+    }
   }
 
   toggle(): void {
@@ -31,6 +50,10 @@ export class ThemeService {
   private setDarkMode(value: boolean): void {
     this.isDarkMode.set(value);
     document.documentElement.classList.toggle('dark-mode', value);
-    localStorage.setItem('theme', value ? 'dark' : 'light');
+    try {
+      localStorage.setItem('theme', value ? 'dark' : 'light');
+    } catch {
+      // localStorage no disponible
+    }
   }
 }

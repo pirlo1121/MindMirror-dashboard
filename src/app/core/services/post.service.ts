@@ -65,7 +65,7 @@ export class PostService {
    */
   updatePost(
     id: string,
-    payload: UpdatePostPayload
+    payload: UpdatePostPayload | FormData
   ): Observable<ApiResponse<Post>> {
     return this.http.put<ApiResponse<Post>>(
       API_ENDPOINTS.posts.byId(id),
@@ -103,7 +103,7 @@ export class PostService {
    * Construye un FormData a partir del payload de creación.
    * El campo `content` se serializa como JSON string.
    */
-  private buildPostFormData(payload: CreatePostPayload): FormData {
+  buildPostFormData(payload: CreatePostPayload): FormData {
     const formData = new FormData();
 
     formData.append('title', payload.title);
@@ -126,6 +126,12 @@ export class PostService {
 
     if (payload.coverImage) {
       formData.append('coverImage', payload.coverImage, payload.coverImage.name);
+    }
+
+    if (payload.contentImages && payload.contentImages.length > 0) {
+      for (const img of payload.contentImages) {
+        formData.append('contentImages', img, img.name);
+      }
     }
 
     return formData;

@@ -75,6 +75,7 @@ export interface CreatePostPayload {
   tags?: string;          // JSON string del array de tags (se envía como JSON en FormData)
   content?: string;       // JSON string del array de ContentBlock
   coverImage?: File;
+  contentImages?: File[];
 }
 
 // ─── Payload para actualizar un post (JSON parcial) ──────────────────────────
