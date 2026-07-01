@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+// import { computed } from '@angular/core'; // ⚠️ Descomentar si se reactiva el filtro por tags
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -44,26 +45,31 @@ import { PostSummary } from '../../../core/interfaces';
           <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No hay artículos publicados</h3>
         </div>
       } @else {
-        <!-- Filter by category -->
-        @if (allTags().length > 0) {
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap;">
-            <span style="font-size: 0.85rem; font-weight: 600; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.5rem;">Categorías</span>
-            <button type="button" class="filter-tag" [class.active]="selectedTag() === null" (click)="selectTag(null)">Todos</button>
-            @for (tag of allTags(); track tag) {
-              <button type="button" class="filter-tag" [class.active]="selectedTag() === tag" (click)="selectTag(tag)">{{ tag }}</button>
-            }
-          </div>
-        }
+        <!-- ═══════════════════════════════════════════════════════════
+             🚫 FILTRO POR CATEGORÍA COMENTADO
+             ═══════════════════════════════════════════════════════════
+             Para reactivar, descomentar en TS:
+               - import { computed }
+               - selectedTag, allTags, filteredPosts, selectTag()
+             Y descomentar el CSS .filter-tag en styles.css
 
-        @if (filteredPosts().length === 0) {
-          <div style="text-align: center; padding: 4rem 0;">
-            <span class="material-symbols-outlined" style="font-size: 48px; color: var(--outline-variant); margin-bottom: 1rem; display: block;">filter_alt_off</span>
-            <p style="font-size: 1.1rem; color: var(--on-surface-variant); margin-bottom: 1rem;">No hay artículos con esa categoría.</p>
-            <button type="button" class="btn btn-secondary" (click)="selectTag(null)">Ver todos</button>
-          </div>
-        } @else {
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap;">
+          <span style="font-size: 0.85rem; font-weight: 600; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.5rem;">Categorías</span>
+          <button type="button" class="filter-tag" [class.active]="selectedTag() === null" (click)="selectTag(null)">Todos</button>
+          @for (tag of allTags(); track tag) {
+            <button type="button" class="filter-tag" [class.active]="selectedTag() === tag" (click)="selectTag(tag)">{{ tag }}</button>
+          }
+        </div>
+
+        <div style="text-align: center; padding: 4rem 0;">
+          <span class="material-symbols-outlined" style="font-size: 48px; color: var(--outline-variant); margin-bottom: 1rem; display: block;">filter_alt_off</span>
+          <p style="font-size: 1.1rem; color: var(--on-surface-variant); margin-bottom: 1rem;">No hay artículos con esa categoría.</p>
+          <button type="button" class="btn btn-secondary" (click)="selectTag(null)">Ver todos</button>
+        </div>
+        ═══════════════════════════════════════════════════════════ -->
+
           <div class="grid-bento section-gap">
-            @for (post of filteredPosts(); track post._id) {
+            @for (post of posts(); track post._id) {
               <article class="card">
                 <a [routerLink]="['/posts', post.slug]" class="card-image-wrapper" style="display: block; text-decoration: none; cursor: pointer;">
                   <img class="card-image" [src]="post.coverImage || ''" [alt]="post.title" />
@@ -107,7 +113,6 @@ import { PostSummary } from '../../../core/interfaces';
               </article>
             }
           </div>
-        }
       }
     </div>
   `,
@@ -119,22 +124,32 @@ export class PostAllComponent implements OnInit {
   readonly posts = signal<PostSummary[]>([]);
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
-  readonly selectedTag = signal<string | null>(null);
-
-  readonly allTags = computed(() => {
-    const tagSet = new Set<string>();
-    for (const post of this.posts()) {
-      for (const tag of post.tags) {
-        tagSet.add(tag);
-      }
-    }
-    return Array.from(tagSet).sort();
-  });
-
-  readonly filteredPosts = computed(() => {
-    const tag = this.selectedTag();
-    return tag ? this.posts().filter(p => p.tags.includes(tag)) : this.posts();
-  });
+  // ═══════════════════════════════════════════════════════════════
+  //  🚫 FILTRO POR CATEGORÍA COMENTADO
+  //  ═══════════════════════════════════════════════════════════════
+  //  Para reactivar:
+  //    1. Descomentar import { computed } al inicio del archivo
+  //    2. Descomentar las líneas de abajo
+  //    3. Descomentar el CSS .filter-tag en styles.css
+  //    4. Descomentar el HTML del filtro en el template
+  //
+  // readonly selectedTag = signal<string | null>(null);
+  //
+  // readonly allTags = computed(() => {
+  //   const tagSet = new Set<string>();
+  //   for (const post of this.posts()) {
+  //     for (const tag of post.tags) {
+  //       tagSet.add(tag);
+  //     }
+  //   }
+  //   return Array.from(tagSet).sort();
+  // });
+  //
+  // readonly filteredPosts = computed(() => {
+  //   const tag = this.selectedTag();
+  //   return tag ? this.posts().filter(p => p.tags.includes(tag)) : this.posts();
+  // });
+  // ═══════════════════════════════════════════════════════════
 
   ngOnInit(): void {
     this.loadPosts();
@@ -156,7 +171,7 @@ export class PostAllComponent implements OnInit {
     });
   }
 
-  selectTag(tag: string | null): void {
-    this.selectedTag.set(tag);
-  }
+  // 🚫 selectTag(tag: string | null): void {
+  //   this.selectedTag.set(tag);
+  // }
 }

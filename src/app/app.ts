@@ -18,37 +18,21 @@ import { NavbarComponent } from './shared/navbar/navbar.component';
       <div class="container footer-grid">
         <div class="footer-brand">
           <h2 style="font-family: var(--font-display); font-weight: 700; color: var(--primary);">MindMirror</h2>
-          <p style="margin-top: 1rem;">
+          <p style="margin-top: 0.5rem;">
             Un espacio para la introspección y la claridad mental. Exploramos la complejidad de la mente humana a través de la psicología y la filosofía para ayudarte a vivir una vida más consciente.
           </p>
         </div>
         <div class="footer-column">
-          <h4>Categorías</h4>
+          <h4>Enlaces</h4>
           <ul class="footer-links">
-            <li><a routerLink="/posts">Psicología</a></li>
-            <li><a routerLink="/posts">Filosofía</a></li>
-            <li><a routerLink="/posts">Reflexiones</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4>Comunidad</h4>
-          <ul class="footer-links">
-            <li><a routerLink="/subscribe">Newsletter</a></li>
-            <li><a href="#">Membresías</a></li>
-            <li><a href="#">Talleres</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4>Proyecto</h4>
-          <ul class="footer-links">
+            <li><a routerLink="/posts">Posts</a></li>
+            <li><a routerLink="/subscribe">Subscribirse</a></li>
             <li><a routerLink="/about">Sobre Nosotros</a></li>
-            <li><a href="#">Contacto</a></li>
-            <li><a href="#">Privacidad</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>© 2026 MindMirror. Todos los derechos reservados. Diseñado para pensadores profundos.</p>
+        <p>© 2026 MindMirror. Todos los derechos reservados.</p>
       </div>
     </footer>
   `,

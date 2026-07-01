@@ -1086,40 +1086,40 @@ textarea.form-control {
 footer {
   background-color: var(--surface-container-low);
   border-top: 1px solid rgba(197, 198, 206, 0.2);
-  padding: 5rem 0 3rem;
-  margin-top: 8rem;
+  padding: 2.5rem 0 1.5rem;
+  margin-top: 4rem;
 }
 
 .footer-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 3rem;
+  gap: 1.5rem;
 }
 
 @media (min-width: 768px) {
   .footer-grid {
-    grid-template-columns: 1.5fr repeat(3, 1fr);
+    grid-template-columns: 1.5fr 1fr;
   }
 }
 
 .footer-brand h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .footer-brand p {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--on-surface-variant);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .footer-column h4 {
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .footer-links {
@@ -1127,7 +1127,7 @@ footer {
 }
 
 .footer-links li {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.35rem;
 }
 
 .footer-links a {
@@ -1140,11 +1140,11 @@ footer {
 }
 
 .footer-bottom {
-  margin-top: 4rem;
-  padding-top: 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
   border-top: 1px solid rgba(197, 198, 206, 0.2);
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--on-surface-variant);
   opacity: 0.8;
 }
@@ -1206,40 +1206,40 @@ footer {
   text-decoration: underline;
 }
 
-/* Filter Tags */
-.filter-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.35rem 0.9rem;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--outline-variant);
-  background-color: transparent;
-  color: var(--on-surface-variant);
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition-custom);
-  text-transform: capitalize;
-}
+/* 🚫 Filter Tags — comentado mientras el filtro por categoría esté desactivado */
+/* .filter-tag { */
+/*   display: inline-flex; */
+/*   align-items: center; */
+/*   padding: 0.35rem 0.9rem; */
+/*   border-radius: var(--radius-full); */
+/*   border: 1px solid var(--outline-variant); */
+/*   background-color: transparent; */
+/*   color: var(--on-surface-variant); */
+/*   font-family: var(--font-body); */
+/*   font-size: 0.8rem; */
+/*   font-weight: 500; */
+/*   cursor: pointer; */
+/*   transition: var(--transition-custom); */
+/*   text-transform: capitalize; */
+/* } */
 
-.filter-tag:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background-color: var(--primary-fixed);
-}
+/* .filter-tag:hover { */
+/*   border-color: var(--primary); */
+/*   color: var(--primary); */
+/*   background-color: var(--primary-fixed); */
+/* } */
 
-.filter-tag.active {
-  background-color: var(--primary);
-  color: var(--on-primary);
-  border-color: var(--primary);
-}
+/* .filter-tag.active { */
+/*   background-color: var(--primary); */
+/*   color: var(--on-primary); */
+/*   border-color: var(--primary); */
+/* } */
 
-.dark-mode .filter-tag.active {
-  background-color: var(--primary);
-  color: var(--on-primary);
-  border-color: var(--primary);
-}
+/* .dark-mode .filter-tag.active { */
+/*   background-color: var(--primary); */
+/*   color: var(--on-primary); */
+/*   border-color: var(--primary); */
+/* } */
 
 /* Spacing and Page Header Helper */
 .page-header {
