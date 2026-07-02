@@ -58,7 +58,7 @@
 
       <!-- Imagen de portada -->
       @if (currentPost.coverImage) {
-        <img class="article-cover-img" [src]="currentPost.coverImage" [alt]="currentPost.title" />
+        <img class="article-cover-img" [src]="currentPost.coverImage" [alt]="currentPost.title" loading="lazy" />
       } @else {
         <!-- Ethereal default cover matching brand -->
         <div class="article-cover-placeholder">
@@ -87,7 +87,7 @@
 
           @if (block.type === 'image') {
             <figure style="margin: 2.5rem 0; text-align: center;">
-              <img [src]="block.imageUrl" alt="Imagen del post" style="max-width: 100%; border-radius: var(--radius-md); box-shadow: var(--shadow-low);" />
+              <img [src]="block.imageUrl" alt="Imagen del post" loading="lazy" style="max-width: 100%; border-radius: var(--radius-md); box-shadow: var(--shadow-low);" />
             </figure>
           }
 

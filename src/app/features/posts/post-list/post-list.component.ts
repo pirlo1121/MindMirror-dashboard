@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -12,9 +13,11 @@ import { PostSummary } from '../../../core/interfaces';
   standalone: true,
   imports: [RouterLink, DatePipe],
   templateUrl: './post-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostListComponent implements OnInit {
   private readonly postService = inject(PostService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly authService = inject(AuthService);
 
   readonly posts = signal<PostSummary[]>([]);
@@ -31,7 +34,7 @@ export class PostListComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.postService.getPosts().subscribe({
+    this.postService.getPosts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.posts.set(response.data);
         this.isLoading.set(false);

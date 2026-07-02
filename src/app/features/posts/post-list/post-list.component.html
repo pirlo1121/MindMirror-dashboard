@@ -47,7 +47,7 @@
           <a [routerLink]="['/posts', featured.slug]" class="hero-image-wrapper">
             <img class="hero-image"
                  [src]="featured.coverImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuAeUkXI1rKxsOBvUQyc65s9xJfUXU4zJhdn362haQ_3gDbdXcaAO_tZKLwa4VBIccTBdHBNykyPSoinoI9EQ4hB2Z0mI5XKGLq46Faj08voOKj4T4CExdI6WxXvgUYjHsDkjG880eAhXQ984rfUzscFT4QqqLx8PJE228g4zJbhjl9kB3NWBkLOevqoVvVl_PaTKNSgDTDVDrg7Tyf4eIDbaBUvrjkazfxpbYHpSPSlS2TQ3oMUddbWEV84cnlbeiy0Kd1V-7rxnQZD'"
-                 [alt]="featured.title" />
+                 [alt]="featured.title" fetchpriority="high" />
             <div class="hero-image-overlay"></div>
           </a>
           <div class="hero-content">
@@ -105,7 +105,7 @@
               <a [routerLink]="['/posts', post.slug]" class="card-image-wrapper" style="display: block; text-decoration: none; cursor: pointer;">
                 <img class="card-image" 
                      [src]="post.coverImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCzBnZnyuLTnuesRnFeSuWoW3Yj1ePtKKxPJ83BdRQHtKSoLtyC0EwDLiR77UddynsOgaoixKrDgSNrABZsoAQhHcD_dSW7jXghHmybjgyzzHncbuBEwso-PxVXwOX7zEW5nvpGOmWYRKwHm5qTOCK-T7t22CeKxTSoLyW2hrRlOpCJ_okEgU8r23iqlQptEWxHW1CNn1k0uH29aeLJKSQApXJPRYCzuCuKyo_KbWRiHqoM98SeEKrTayfPzLXDpUq7x-6vIhdj14o-'" 
-                     [alt]="post.title" />
+                     [alt]="post.title" loading="lazy" />
                 @if (post.tags && post.tags.length > 0) {
                   <span class="card-badge">{{ post.tags[0] }}</span>
                 } @else {

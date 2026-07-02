@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, ViewChild, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
@@ -21,12 +22,14 @@ import {
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, RichEditorComponent],
   templateUrl: './post-form.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostFormComponent implements OnInit {
   private readonly postService = inject(PostService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   @ViewChild(RichEditorComponent) richEditor!: RichEditorComponent;
 
@@ -96,7 +99,7 @@ export class PostFormComponent implements OnInit {
       ? this.postService.updatePost(this.editingPostId()!, this.postService.buildPostFormData(payload))
       : this.postService.createPost(payload);
 
-    request$.subscribe({
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         this.router.navigate(['/posts', response.data.slug]);

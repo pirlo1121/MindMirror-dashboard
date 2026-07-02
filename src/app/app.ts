@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet, RouterLink } from '@angular/router';
 
 import { AuthService } from './core/services/auth.service';
@@ -9,6 +10,7 @@ import { NavbarComponent } from './shared/navbar/navbar.component';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterLink, NavbarComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-navbar />
     <main>
@@ -40,6 +42,7 @@ import { NavbarComponent } from './shared/navbar/navbar.component';
 export class App implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly themeService = inject(ThemeService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     /**
@@ -47,7 +50,7 @@ export class App implements OnInit {
      * leyendo la cookie HTTP-only que el servidor haya establecido previamente.
      * Si no hay sesión activa, el error es silenciado (es el comportamiento esperado).
      */
-    this.authService.restoreSession().subscribe({
+    this.authService.restoreSession().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: () => {
         // Sin sesión activa — el usuario no está autenticado
       },

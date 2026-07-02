@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 // import { computed } from '@angular/core'; // ⚠️ Descomentar si se reactiva el filtro por tags
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
@@ -12,6 +13,7 @@ import { PostSummary } from '../../../core/interfaces';
   selector: 'app-post-all',
   standalone: true,
   imports: [RouterLink, DatePipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container">
       <div class="page-header">
@@ -72,7 +74,7 @@ import { PostSummary } from '../../../core/interfaces';
             @for (post of posts(); track post._id) {
               <article class="card">
                 <a [routerLink]="['/posts', post.slug]" class="card-image-wrapper" style="display: block; text-decoration: none; cursor: pointer;">
-                  <img class="card-image" [src]="post.coverImage || ''" [alt]="post.title" />
+                  <img class="card-image" [src]="post.coverImage || ''" [alt]="post.title" loading="lazy" />
                   @if (post.tags && post.tags.length > 0) {
                     <span class="card-badge">{{ post.tags[0] }}</span>
                   } @else {
@@ -119,6 +121,7 @@ import { PostSummary } from '../../../core/interfaces';
 })
 export class PostAllComponent implements OnInit {
   private readonly postService = inject(PostService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly authService = inject(AuthService);
 
   readonly posts = signal<PostSummary[]>([]);
@@ -159,7 +162,7 @@ export class PostAllComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.postService.getPosts().subscribe({
+    this.postService.getPosts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.posts.set(response.data);
         this.isLoading.set(false);

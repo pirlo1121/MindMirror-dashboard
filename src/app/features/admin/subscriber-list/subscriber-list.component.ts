@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 
@@ -10,9 +11,11 @@ import { Subscriber } from '../../../core/interfaces';
   standalone: true,
   imports: [DatePipe],
   templateUrl: './subscriber-list.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubscriberListComponent implements OnInit {
   private readonly subscriberService = inject(SubscriberService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly subscribers = signal<Subscriber[]>([]);
   readonly isLoading = signal(true);
@@ -27,7 +30,7 @@ export class SubscriberListComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.subscriberService.getSubscribers().subscribe({
+    this.subscriberService.getSubscribers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.subscribers.set(response.data);
         this.isLoading.set(false);
@@ -42,7 +45,7 @@ export class SubscriberListComponent implements OnInit {
   pauseSubscriber(id: string): void {
     this.actionLoadingId.set(id);
 
-    this.subscriberService.pauseSubscriber(id).subscribe({
+    this.subscriberService.pauseSubscriber(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.updateSubscriberInList(response.data);
         this.actionLoadingId.set(null);
@@ -57,7 +60,7 @@ export class SubscriberListComponent implements OnInit {
   activateSubscriber(id: string): void {
     this.actionLoadingId.set(id);
 
-    this.subscriberService.activateSubscriber(id).subscribe({
+    this.subscriberService.activateSubscriber(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.updateSubscriberInList(response.data);
         this.actionLoadingId.set(null);
@@ -74,7 +77,7 @@ export class SubscriberListComponent implements OnInit {
 
     this.actionLoadingId.set(id);
 
-    this.subscriberService.deleteSubscriber(id).subscribe({
+    this.subscriberService.deleteSubscriber(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.subscribers.update((list) =>
           list.filter((sub) => sub._id !== id)

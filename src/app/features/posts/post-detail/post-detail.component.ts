@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -11,11 +12,13 @@ import { Post, ContentBlock } from '../../../core/interfaces';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './post-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly postService = inject(PostService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly authService = inject(AuthService);
 
   readonly post = signal<Post | null>(null);
@@ -31,7 +34,7 @@ export class PostDetailComponent implements OnInit {
   }
 
   loadPost(slug: string): void {
-    this.postService.getPostBySlug(slug).subscribe({
+    this.postService.getPostBySlug(slug).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.post.set(response.data);
         this.isLoading.set(false);
@@ -51,7 +54,7 @@ export class PostDetailComponent implements OnInit {
     const current = this.post();
     if (!current) return;
 
-    this.postService.publishPost(current._id).subscribe({
+    this.postService.publishPost(current._id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.post.set(response.data);
       },
@@ -67,7 +70,7 @@ export class PostDetailComponent implements OnInit {
 
     this.isDeleting.set(true);
 
-    this.postService.deletePost(current._id).subscribe({
+    this.postService.deletePost(current._id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.router.navigate(['/posts']);
       },

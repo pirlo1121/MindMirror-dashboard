@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 
@@ -12,9 +13,11 @@ import { PostSummary } from '../../../core/interfaces';
   standalone: true,
   imports: [RouterLink, DatePipe],
   templateUrl: './post-drafts.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostDraftsComponent implements OnInit {
   private readonly postService = inject(PostService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly drafts = signal<PostSummary[]>([]);
   readonly isLoading = signal(true);
@@ -29,7 +32,7 @@ export class PostDraftsComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.postService.getDrafts().subscribe({
+    this.postService.getDrafts().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.drafts.set(response.data);
         this.isLoading.set(false);
@@ -44,7 +47,7 @@ export class PostDraftsComponent implements OnInit {
   publishDraft(id: string): void {
     this.publishingId.set(id);
 
-    this.postService.publishPost(id).subscribe({
+    this.postService.publishPost(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         // Remover de la lista de borradores al publicar
         this.drafts.update((drafts) =>

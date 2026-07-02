@@ -62,6 +62,7 @@ export class AuthService {
             this._sessionChecked.set(true);
             return throwError(() => error);
           }),
+          // Reinicia el caché cuando el observable se completa (refCount=0)
           shareReplay({ bufferSize: 1, refCount: true }),
         );
     }
@@ -140,6 +141,10 @@ export class AuthService {
     this.restoreSession$ = null;
     this._sessionChecked.set(false);
     this.router.navigate(['/login']);
+  }
+
+  invalidateRestoreSessionCache(): void {
+    this.restoreSession$ = null;
   }
 
   /**

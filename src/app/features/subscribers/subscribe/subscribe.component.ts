@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
@@ -15,10 +16,12 @@ import { CreateSubscriberPayload } from '../../../core/interfaces';
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './subscribe.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SubscribeComponent {
   private readonly subscriberService = inject(SubscriberService);
   private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly isLoading = signal(false);
   readonly successMessage = signal<string | null>(null);
@@ -41,7 +44,7 @@ export class SubscribeComponent {
 
     const payload: CreateSubscriberPayload = this.subscribeForm.value;
 
-    this.subscriberService.subscribe(payload).subscribe({
+    this.subscriberService.subscribe(payload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         this.successMessage.set(

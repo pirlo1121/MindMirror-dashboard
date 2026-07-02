@@ -1,10 +1,9 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [RouterLink],
   templateUrl: './about.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AboutComponent {}

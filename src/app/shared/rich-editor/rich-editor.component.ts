@@ -5,12 +5,15 @@ import {
   EventEmitter,
   signal,
   computed,
-  HostListener,
   ViewChildren,
   QueryList,
   ElementRef,
   AfterViewInit,
+  ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ContentBlock } from '../../core/interfaces';
 
@@ -24,8 +27,13 @@ interface AddMenuState {
   standalone: true,
   imports: [FormsModule],
   templateUrl: './rich-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RichEditorComponent implements AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** Map de blob URLs creadas para previews de imágenes, para evitar fugas de memoria */
+  private readonly blobUrlCache = new Map<number, string>();
   @Input() blocks: ContentBlock[] = [];
   @Input() contentImageFiles: Record<number, File> = {};
   @Output() blocksChange = new EventEmitter<ContentBlock[]>();
@@ -135,16 +143,30 @@ export class RichEditorComponent implements AfterViewInit {
     this.blocks = newBlocks;
 
     const newFiles = { ...this.contentImageFiles };
+    const newCache = new Map<number, string>();
     const removedKeys = Object.keys(newFiles)
       .map(Number)
       .filter((k) => k >= index);
     for (const k of removedKeys) {
       if (k === index) {
+        this.revokeBlobUrl(k);
         delete newFiles[k];
       } else if (k > index) {
-        newFiles[k - 1] = newFiles[k];
+        const url = this.blobUrlCache.get(k);
+        if (url) {
+          newCache.set(k - 1, url);
+        }
         delete newFiles[k];
       }
+    }
+    for (const [k, url] of this.blobUrlCache) {
+      if (k < index) {
+        newCache.set(k, url);
+      }
+    }
+    this.blobUrlCache.clear();
+    for (const [k, url] of newCache) {
+      this.blobUrlCache.set(k, url);
     }
     this.contentImageFiles = newFiles;
     this.contentImageFilesChange.emit(this.contentImageFiles);
@@ -166,6 +188,18 @@ export class RichEditorComponent implements AfterViewInit {
       newFiles[target] = temp;
       this.contentImageFiles = newFiles;
       this.contentImageFilesChange.emit(this.contentImageFiles);
+    }
+
+    const urlA = this.blobUrlCache.get(index);
+    const urlB = this.blobUrlCache.get(target);
+    if (urlA || urlB) {
+      const newCache = new Map(this.blobUrlCache);
+      if (urlA) newCache.set(target, urlA);
+      if (urlB) newCache.set(index, urlB);
+      this.blobUrlCache.clear();
+      for (const [k, url] of newCache) {
+        this.blobUrlCache.set(k, url);
+      }
     }
     this.emitChange();
   }
@@ -213,14 +247,17 @@ export class RichEditorComponent implements AfterViewInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
     if (!file) return;
+    this.revokeBlobUrl(index);
     const newFiles = { ...this.contentImageFiles };
     newFiles[index] = file;
     this.contentImageFiles = newFiles;
     this.contentImageFilesChange.emit(this.contentImageFiles);
 
+    const blobUrl = URL.createObjectURL(file);
+    this.blobUrlCache.set(index, blobUrl);
     const newBlocks = [...this.blocks];
     const block = { ...newBlocks[index] } as any;
-    block.imageUrl = URL.createObjectURL(file);
+    block.imageUrl = blobUrl;
     newBlocks[index] = block;
     this.blocks = newBlocks;
     this.emitChange();
@@ -251,6 +288,7 @@ export class RichEditorComponent implements AfterViewInit {
     delete newFiles[index];
     this.contentImageFiles = newFiles;
     this.contentImageFilesChange.emit(this.contentImageFiles);
+    this.revokeBlobUrl(index);
     this.emitChange();
   }
 
@@ -258,9 +296,23 @@ export class RichEditorComponent implements AfterViewInit {
     const block = this.blocks[index];
     if (block.type !== 'image') return null;
     if (this.contentImageFiles[index]) {
-      return URL.createObjectURL(this.contentImageFiles[index]);
+      const cached = this.blobUrlCache.get(index);
+      if (cached) {
+        return cached;
+      }
+      const url = URL.createObjectURL(this.contentImageFiles[index]);
+      this.blobUrlCache.set(index, url);
+      return url;
     }
     return block.imageUrl || null;
+  }
+
+  private revokeBlobUrl(index: number): void {
+    const existing = this.blobUrlCache.get(index);
+    if (existing) {
+      URL.revokeObjectURL(existing);
+      this.blobUrlCache.delete(index);
+    }
   }
 
   // ─── Keyboard Navigation ────────────────────────────────────────────────────
@@ -397,7 +449,25 @@ export class RichEditorComponent implements AfterViewInit {
     return index;
   }
 
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   private emitChange(): void {
-    this.blocksChange.emit(this.blocks);
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+    this.debounceTimer = setTimeout(() => {
+      this.blocksChange.emit(this.blocks);
+      this.debounceTimer = null;
+    }, 150);
+  }
+
+  ngOnDestroy(): void {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+    for (const url of this.blobUrlCache.values()) {
+      URL.revokeObjectURL(url);
+    }
+    this.blobUrlCache.clear();
   }
 }
