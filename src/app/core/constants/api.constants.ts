@@ -1,4 +1,6 @@
-export const API_BASE_URL = 'http://localhost:5000/api';
+// export const API_BASE_URL = 'http://localhost:3000/api';
+export const API_BASE_URL = 'https://ejemplo94.duckdns.org/api';
+
 
 export const API_ENDPOINTS = {
   auth: {
