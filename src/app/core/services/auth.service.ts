@@ -62,7 +62,7 @@ export class AuthService {
             this._sessionChecked.set(true);
             return throwError(() => error);
           }),
-          shareReplay(1),
+          shareReplay({ bufferSize: 1, refCount: true }),
         );
     }
     return this.restoreSession$;
@@ -80,6 +80,8 @@ export class AuthService {
         tap((response) => {
           if (response.success) {
             this._currentUser.set(response.user);
+            this.restoreSession$ = null;
+            this._sessionChecked.set(false);
           }
         })
       );
@@ -115,11 +117,14 @@ export class AuthService {
       .pipe(
         tap(() => {
           this._currentUser.set(null);
+          this.restoreSession$ = null;
+          this._sessionChecked.set(false);
           this.router.navigate(['/login']);
         }),
         catchError((error) => {
-          // Limpiar estado local incluso si la petición falla
           this._currentUser.set(null);
+          this.restoreSession$ = null;
+          this._sessionChecked.set(false);
           this.router.navigate(['/login']);
           return throwError(() => error);
         })
@@ -132,6 +137,8 @@ export class AuthService {
    */
   clearSession(): void {
     this._currentUser.set(null);
+    this.restoreSession$ = null;
+    this._sessionChecked.set(false);
     this.router.navigate(['/login']);
   }
 
