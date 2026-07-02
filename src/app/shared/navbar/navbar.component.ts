@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, DestroyRef, HostListener } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -18,6 +18,21 @@ export class NavbarComponent {
   readonly themeService = inject(ThemeService);
 
   readonly mobileMenuOpen = signal(false);
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.mobileMenuOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent): void {
+    if (!this.mobileMenuOpen()) return;
+    const target = event.target as HTMLElement;
+    const clickedInside = target.closest('.nav-links, .mobile-menu-toggle');
+    if (!clickedInside) {
+      this.mobileMenuOpen.set(false);
+    }
+  }
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen.update((v) => !v);
